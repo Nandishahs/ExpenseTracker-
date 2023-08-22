@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1>Expense Tracker</h1>
+    <form id="expenseForm">
+      <div class="mb-3">
+        <label for="expenseAmount">Choose Expense Amount:</label>
+        <input type="number" class="form-control" id="expenseAmount" required>
+      </div>
+      <div class="mb-3">
+        <label for="expenseDescription">Choose Description:</label>
+        <input type="text" class="form-control" id="expenseDescription" required>
+      </div>
+      <div class="mb-3">
+        <label for="expenseCategory">Choose a Category:</label>
+        <select class="form-select" id="expenseCategory" required>
+          <option value="food">Food</option>
+          <option value="travel">Travel</option>
+          <option value="entertainment">Entertainment</option>
+          <!-- Add more options here -->
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Expense</button>
+    </form>
+    
+    <div id="expenseList" class="mt-4">
+      <!-- Display expenses here -->
+    </div>
+  </div>
+  
+  <script>
+    const expenseForm = document.getElementById('expenseForm');
+    const expenseList = document.getElementById('expenseList');
+    
+    expenseForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const amount = parseFloat(document.getElementById('expenseAmount').value);
+      const description = document.getElementById('expenseDescription').value;
+      const category = document.getElementById('expenseCategory').value;
+      
+      const expense = { amount, description, category };
+      addExpense(expense);
+      expenseForm.reset();
+    });
+    
+    function addExpense(expense) {
+      const expenses = getExpensesFromLocalStorage();
+      expenses.push(expense);
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      updateExpenseList();
+    }
+    
+    function getExpensesFromLocalStorage() {
+      return JSON.parse(localStorage.getItem('expenses')) || [];
+    }
+    
+    function deleteExpense(index) {
+      const expenses = getExpensesFromLocalStorage();
+      expenses.splice(index, 1);
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      updateExpenseList();
+    }
+    
+    function editExpense(index) {
+      const expenses = getExpensesFromLocalStorage();
+      const expense = expenses[index];
+      
+      document.getElementById('expenseAmount').value = expense.amount;
+      document.getElementById('expenseDescription').value = expense.description;
+      document.getElementById('expenseCategory').value = expense.category;
+      
+      deleteExpense(index);
+    }
+    
+    function updateExpenseList() {
+      const expenses = getExpensesFromLocalStorage();
+      expenseList.innerHTML = '';
+      
+      expenses.forEach((expense, index) => {
+        const expenseItem = document.createElement('div');
+        expenseItem.className = 'card mb-3';
+        expenseItem.innerHTML = `
+          <div class="card-body">
+            <h5 class="card-title">${expense.description}</h5>
+            <p class="card-text">$${expense.amount.toFixed(2)} - ${expense.category}</p>
+            <button class="btn btn-danger" onclick="deleteExpense(${index})">Delete</button>
+            <button class="btn btn-primary" onclick="editExpense(${index})">Edit</button>
+          </div>
+        `;
+        expenseList.appendChild(expenseItem);
+      });
+    }
+    
+    updateExpenseList();
+  </script>
+</body>
+          </html>
+  
